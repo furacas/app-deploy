@@ -1,0 +1,39 @@
+name: deploy traefik
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Input the name of Environment"
+        default: "ali"
+        required: true
+
+jobs:
+  build:
+    runs-on:  ubuntu-latest
+    environment: ${{ github.event.inputs.env }}
+    steps:
+      - name: Checkout App Repo
+        uses: actions/checkout@v3
+        with:
+          repository: furacas/app
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Set Env
+        env:
+          SSL_EMAIL: ${{ secrets.EMAIL }}
+          DATA_FOLDER: .
+        run: |
+          echo  "SSL_EMAIL=${SSL_EMAIL}" >> traefik/.env
+          echo  "DATA_FOLDER=." >> traefik/.env
+      - name: Deploy to server
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SOURCE: "traefik/"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: "/root/app/traefik/"
+          SCRIPT_AFTER: |
+            cd /root/app/traefik
+            docker compose down
+            docker compose up -d
