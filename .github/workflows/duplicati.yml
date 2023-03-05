@@ -1,0 +1,37 @@
+name: deploy duplicati
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Input the name of Environment"
+        default: "ali"
+        required: true
+
+jobs:
+  build:
+    runs-on:  ubuntu-latest
+    environment: ${{ github.event.inputs.env }}
+    steps:
+      - name: Checkout App Repo
+        uses: actions/checkout@v3
+        with:
+          repository: furacas/app
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Set Env
+        env:
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        run: |
+          echo  "DOMAIN_NAME=${DOMAIN_NAME}" >> duplicati/.env
+      - name: Deploy to server
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SOURCE: "duplicati/"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: "/root/app/duplicati/"
+          SCRIPT_AFTER: |
+            cd /root/app/duplicati
+            docker compose down
+            docker compose up -d
