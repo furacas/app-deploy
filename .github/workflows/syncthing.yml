@@ -13,8 +13,11 @@ jobs:
     runs-on:  ubuntu-latest
     environment: ${{ github.event.inputs.env }}
     steps:
-      - name: Checkout Repository master branch
-        uses: actions/checkout@main
+      - name: Checkout App Repo
+        uses: actions/checkout@v3
+        with:
+          repository: furacas/app
+          token: ${{ secrets.GH_TOKEN }}
       - name: Set Env
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
