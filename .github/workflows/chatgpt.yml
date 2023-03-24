@@ -1,0 +1,40 @@
+name: deploy chatgpt-dingtalk
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Input the name of Environment"
+        default: "vultr"
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.env }}
+    steps:
+      - name: Checkout App Repo
+        uses: actions/checkout@v3
+        with:
+          repository: furacas/app
+          token: ${{ secrets.GH_TOKEN }}
+          submodules: true
+      - name: Set Env
+        env:
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        run: |
+          echo  "DOMAIN_NAME=${DOMAIN_NAME}" >> chatgpt-dingtalk/.env
+      - name: Deploy to server
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SOURCE: "chatgpt-dingtalk/"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: "/root/app/chatgpt-dingtalk/"
+          SCRIPT_BEFORE: |
+            mkdir -p /root/app/chatgpt-dingtalk
+          SCRIPT_AFTER: |
+            cd /root/app/chatgpt-dingtalk
+            docker compose down
+            docker compose up -d
