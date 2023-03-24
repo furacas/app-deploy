@@ -1,11 +1,11 @@
-name: deploy alist
+name: deploy v2ray
 
 on:
   workflow_dispatch:
     inputs:
       env:
         description: "Input the name of Environment"
-        default: "vultr"
+        default: "ali"
         required: true
 
 jobs:
@@ -18,18 +18,21 @@ jobs:
         with:
           repository: furacas/app
           token: ${{ secrets.GH_TOKEN }}
+          submodules: 'true'
       - name: Set Env
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        run: |
+          echo  "DOMAIN_NAME=${DOMAIN_NAME}" >> v2ray/.env
       - name: Deploy to server
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SOURCE: "chatgpt-dingtalk/"
+          SOURCE: "v2ray/"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          TARGET: "/root/app/chatgpt-dingtalk/"
+          TARGET: "/root/app/v2ray/"
           SCRIPT_AFTER: |
-            cd /root/app/chatgpt-dingtalk
+            cd /root/app/v2ray
             docker compose down
             docker compose up -d
