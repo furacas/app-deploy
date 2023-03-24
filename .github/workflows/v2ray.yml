@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on:  ubuntu-latest
+    runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.env }}
     steps:
       - name: Checkout App Repo
@@ -18,12 +18,13 @@ jobs:
         with:
           repository: furacas/app
           token: ${{ secrets.GH_TOKEN }}
-          submodules: 'true'
+          submodules: "true"
       - name: Set Env
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
         run: |
           echo  "DOMAIN_NAME=${DOMAIN_NAME}" >> v2ray/.env
+          mkdir -p /root/app/v2ray
       - name: Deploy to server
         uses: easingthemes/ssh-deploy@main
         env:
