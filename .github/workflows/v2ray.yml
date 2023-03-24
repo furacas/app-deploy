@@ -18,7 +18,7 @@ jobs:
         with:
           repository: furacas/app
           token: ${{ secrets.GH_TOKEN }}
-          submodules: "true"
+          submodules: true
       - name: Set Env
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
