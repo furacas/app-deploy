@@ -36,5 +36,6 @@ jobs:
             mkdir -p /root/app/chatgpt-dingtalk
           SCRIPT_AFTER: |
             cd /root/app/chatgpt-dingtalk
+            docker compose pull
             docker compose down
             docker compose up -d
